@@ -56,17 +56,14 @@ jobs:
       run: |
         mkdir -p ~/.android
         sudo apt-get update
-        sudo apt-get install -y android-sdk || true
-        # sdkmanager usually comes with android-sdk; if missing install commandline-tools
-        if ! command -v sdkmanager >/dev/null 2>&1; then
-          echo "sdkmanager not found, installing commandlinetools"
-          sudo apt-get install -y unzip wget
-          curl -sS https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o cmdline-tools.zip
-          mkdir -p $HOME/Android/cmdline-tools
-          unzip -q cmdline-tools.zip -d $HOME/Android/cmdline-tools
-          export PATH="$HOME/Android/cmdline-tools/cmdline-tools/bin:$PATH"
-        fi
-        yes | sdkmanager "build-tools;33.0.0" "platforms;android-33"
+        sudo apt-get install -y unzip wget
+        export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+        curl -sS https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o cmdline-tools.zip
+        unzip -q cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+        export PATH="$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
+          "platform-tools" "build-tools;33.0.0" "platforms;android-33"
 
     # 4. بدء البناء (هذه الخطوة تأخذ وقتاً طويلاً: 15-20 دقيقة)
     - name: Build APK with Buildozer
