@@ -5,7 +5,7 @@ title = Cloud Patcher
 
 # (str) Package name
 package.name = cloudpatcher
-
+version = 1.0
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
 
