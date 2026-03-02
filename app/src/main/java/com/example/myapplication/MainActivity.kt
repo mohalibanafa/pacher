@@ -1,4 +1,4 @@
-package com.example.myapplication // غير هذا لاسم الباكيج الخاص بك
+package com.example.myapplication
 
 import android.app.DownloadManager
 import android.content.Context
@@ -8,15 +8,13 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material3.* // هذا يستورد كل شيء بما في ذلك Experimental
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,13 +59,15 @@ class MainActivity : ComponentActivity() {
 // ==============================
 // 🎨 الواجهة الرسومية (UI)
 // ==============================
+
+// ✅ التعديل هنا: إضافة هذا السطر للسماح باستخدام FilterChip و Card
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CloudPatcherApp() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    // متغيرات الحالة (State)
     var serverUrl by remember { mutableStateOf("") }
     var operationMode by remember { mutableStateOf("إنشاء باتش بين ملفين وضغطه") }
     var originalUrl by remember { mutableStateOf("") }
@@ -85,7 +85,6 @@ fun CloudPatcherApp() {
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 1. العنوان
         Text(
             text = "🚀 Cloud Patcher Client",
             fontSize = 24.sp,
@@ -94,7 +93,6 @@ fun CloudPatcherApp() {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // 2. إعدادات السيرفر
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
@@ -112,11 +110,11 @@ fun CloudPatcherApp() {
             }
         }
 
-        // 3. اختيار العملية
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
+            // FilterChip هو المسبب للمشكلة، والآن تم حله بواسطة @OptIn
             FilterChip(
                 selected = operationMode == "إنشاء باتش بين ملفين وضغطه",
                 onClick = { operationMode = "إنشاء باتش بين ملفين وضغطه" },
@@ -133,7 +131,6 @@ fun CloudPatcherApp() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 4. حقول الإدخال
         OutlinedTextField(
             value = originalUrl,
             onValueChange = { originalUrl = it },
@@ -155,7 +152,6 @@ fun CloudPatcherApp() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 5. زر التنفيذ
         Button(
             onClick = {
                 if (serverUrl.isBlank() || originalUrl.isBlank()) {
@@ -188,13 +184,12 @@ fun CloudPatcherApp() {
             if (isLoading) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("جاري المعالجة على السيرفر...")
+                Text("جاري المعالجة...")
             } else {
                 Text("⚡ بدء العملية")
             }
         }
 
-        // 6. عرض النتائج
         if (errorMessage.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = "❌ خطأ: $errorMessage", color = Color.Red)
@@ -242,12 +237,9 @@ suspend fun processTask(
 ) {
     withContext(Dispatchers.IO) {
         try {
-            // تنظيف رابط السيرفر
             val cleanUrl = baseUrl.trim().removeSuffix("/")
-            // نقطة الاتصال الخاصة بـ Gradio API Name الذي وضعناه في بايثون
             val endpoint = "$cleanUrl/run/process_task"
 
-            // تجهيز البيانات بصيغة JSON خاصة بـ Gradio
             val jsonBody = JSONObject()
             val dataArray = org.json.JSONArray()
             dataArray.put(mode)
@@ -257,7 +249,7 @@ suspend fun processTask(
 
             val client = OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(300, TimeUnit.SECONDS) // وقت طويل للملفات الكبيرة
+                .readTimeout(300, TimeUnit.SECONDS)
                 .build()
 
             val request = Request.Builder()
@@ -273,16 +265,13 @@ suspend fun processTask(
                 return@withContext
             }
 
-            // تحليل رد Gradio
             val jsonResponse = JSONObject(responseBody)
             val dataOutput = jsonResponse.getJSONArray("data")
             
-            // العنصر الأول هو كائن الملف
             val fileObj = dataOutput.getJSONObject(0)
-            val fileUrl = fileObj.getString("url") // الرابط النسبي أو الكامل
+            val fileUrl = fileObj.getString("url")
             val finalDownloadUrl = if (fileUrl.startsWith("http")) fileUrl else "$cleanUrl/file=$fileUrl"
             
-            // العنصر الثاني هو الهاش
             val hashText = dataOutput.getString(1)
 
             withContext(Dispatchers.Main) {
@@ -295,9 +284,6 @@ suspend fun processTask(
     }
 }
 
-// ==============================
-// 📥 مدير التحميل (Download Manager)
-// ==============================
 fun downloadFile(context: Context, url: String) {
     try {
         val request = DownloadManager.Request(Uri.parse(url))
