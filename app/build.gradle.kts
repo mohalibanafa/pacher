@@ -45,6 +45,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    
+    // ✅ المكتبة الجديدة للتعامل مع XZ و BZip2 (المستخدمة في Bsdiff)
+    implementation("org.apache.commons:commons-compress:1.26.0")
 }
