@@ -29,10 +29,6 @@ import gradio as gr
 # 2. دوال المعالجة الأساسية
 # ==========================================
 def download_file(url, output_name):
-    # إذا كان الرابط فارغاً (يحدث عند استدعاء الـ API بوضع تحميل ملف واحد)، نتجاهل التحميل
-    if not url or url.strip() == "":
-        return
-        
     command = ["aria2c", "-x", "16", "-s", "16", "--seed-time=0", "-d", "/content", "-o", output_name, url]
     result = subprocess.run(command, capture_output=True, text=True)
     if result.returncode != 0:
@@ -72,42 +68,50 @@ def create_patch(original, modified, patch_name):
     return patch_name
 
 def compress_file_lzma(file_name):
+    # استخدام xz لضغط أي ملف يُمرر للدالة
     command = ["xz", "-z", "-9", "-e", "-T0", file_name]
     result = subprocess.run(command, capture_output=True, text=True)
     if result.returncode != 0:
         raise Exception(f"فشل الضغط بـ LZMA!\nالسبب: {result.stderr}")
     return f"{file_name}.xz"
 
-# ==========================================
-# 3. الدالة الرئيسية (هذه ما سيكلمها الأندرويد عبر الـ API)
-# ==========================================
+# الدالة الرئيسية التي تدير العمليات حسب اختيار المستخدم
 def process(operation_mode, original_url, modified_url):
-    if not original_url or not original_url.strip():
+    if not original_url.strip():
         raise gr.Error("الرجاء إدخال الرابط الأول على الأقل!")
 
+    # مسارات الملفات المؤقتة
     orig_file = "downloaded_file.bin"
     mod_file = "modified_file.bin"
     patch_file = "output.patch"
     
+    # تنظيف مسبق
     for f in [orig_file, mod_file, patch_file, f"{orig_file}.xz", f"{patch_file}.xz"]:
         if os.path.exists(f):
             os.remove(f)
 
     try:
+        # ========================================================
+        # مسار 1: وضع "تحميل ملف وضغطه مباشرة"
+        # ========================================================
         if operation_mode == "تحميل ملف وضغطه مباشرة":
             gr.Info("📥 بدء تحميل الملف...")
             download_file(original_url, orig_file)
             
             gr.Info("🔍 جاري استخراج الهاش للملف...")
             hashes = calculate_hashes(orig_file)
-            msg = f"MD5: {hashes['MD5']}\nSHA256: {hashes['SHA256']}\nCRC32: {hashes['CRC32']}"
+            
+            msg = f"### ✅ معلومات الملف الذي تم تحميله وضغطه:\n* **MD5:** `{hashes['MD5']}`\n* **SHA256:** `{hashes['SHA256']}`\n* **CRC32:** `{hashes['CRC32']}`"
             
             gr.Info("🗜️ جاري ضغط الملف بأقصى إعدادات (LZMA)...")
             final_file = compress_file_lzma(orig_file)
             return final_file, msg
 
-        else: # وضع الباتش
-            if not modified_url or not modified_url.strip():
+        # ========================================================
+        # مسار 2: وضع "إنشاء باتش وضغطه"
+        # ========================================================
+        else:
+            if not modified_url.strip():
                 raise gr.Error("في وضع إنشاء الباتش، يجب إدخال رابط الملف المعدل!")
                 
             gr.Info("📥 بدء تحميل الملف الأصلي...")
@@ -115,7 +119,8 @@ def process(operation_mode, original_url, modified_url):
             
             gr.Info("🔍 جاري حساب الهاش للملف الأصلي...")
             hashes = calculate_hashes(orig_file)
-            msg = f"MD5: {hashes['MD5']}\nSHA256: {hashes['SHA256']}\nCRC32: {hashes['CRC32']}"
+            
+            msg = f"### ⚠️ تحذير: يجب تطابق هذه القيم مع الملف الأصلي لديك لنجاح الباتش!\n* **MD5:** `{hashes['MD5']}`\n* **SHA256:** `{hashes['SHA256']}`\n* **CRC32:** `{hashes['CRC32']}`"
             
             gr.Info("📥 بدء تحميل الملف المعدل...")
             download_file(modified_url, mod_file)
@@ -126,6 +131,7 @@ def process(operation_mode, original_url, modified_url):
             gr.Info("🗜️ جاري ضغط الباتش بأقصى إعدادات (LZMA)...")
             final_file = compress_file_lzma(patch_file)
             
+            # تنظيف ملفات البداية
             os.remove(orig_file)
             os.remove(mod_file)
             
@@ -135,15 +141,17 @@ def process(operation_mode, original_url, modified_url):
         raise gr.Error(str(e))
 
 # ==========================================
-# 4. بناء الواجهة (وتعريف الـ API)
+# 3. الواجهة الرسومية (Gradio) مع التفاعل الديناميكي
 # ==========================================
 with gr.Blocks(theme=gr.themes.Soft()) as interface:
     gr.Markdown("# 🚀 أداة المعالجة السحابية الشاملة (LZMA + Bsdiff + Aria2)")
     
+    # زر اختيار نوع العملية
     mode_selector = gr.Radio(
         choices=["إنشاء باتش بين ملفين وضغطه", "تحميل ملف وضغطه مباشرة"],
         value="إنشاء باتش بين ملفين وضغطه",
-        label="🛠️ اختر نوع العملية"
+        label="🛠️ اختر نوع العملية",
+        interactive=True
     )
     
     with gr.Row():
@@ -154,22 +162,29 @@ with gr.Blocks(theme=gr.themes.Soft()) as interface:
             
         with gr.Column():
             output_file = gr.File(label="📥 تحميل الملف النهائي (.xz)")
-            output_hashes = gr.Textbox(label="بيانات الملف (Hash)", lines=4)
+            output_hashes = gr.Markdown(label="بيانات الملف (Hash)")
 
+    # دالة لتحديث الواجهة بناءً على اختيار المستخدم
     def update_ui(mode):
         if mode == "تحميل ملف وضغطه مباشرة":
-            return gr.update(label="🔗 رابط الملف المراد تحميله وضغطه"), gr.update(visible=False, value="")
+            # إخفاء المربع الثاني، وتغيير اسم المربع الأول
+            return gr.update(label="🔗 رابط الملف المراد تحميله وضغطه"), gr.update(visible=False)
         else:
+            # إظهار المربعين للباتش
             return gr.update(label="🔗 رابط الملف الأصلي"), gr.update(visible=True)
 
-    mode_selector.change(fn=update_ui, inputs=mode_selector, outputs=[orig_input, mod_input])
+    # ربط تغيير زر الاختيار بتحديث الواجهة
+    mode_selector.change(
+        fn=update_ui,
+        inputs=mode_selector,
+        outputs=[orig_input, mod_input]
+    )
 
-    # 🟢 السر هنا: إضافة api_name="process_task" ليتمكن الأندرويد من التخاطب معه
+    # تشغيل المعالجة
     run_btn.click(
         fn=process,
         inputs=[mode_selector, orig_input, mod_input],
-        outputs=[output_file, output_hashes],
-        api_name="process_task" 
+        outputs=[output_file, output_hashes]
     )
 
 interface.launch(debug=True, share=True)
