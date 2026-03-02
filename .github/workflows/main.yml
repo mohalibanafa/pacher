@@ -51,6 +51,23 @@ jobs:
     - name: Install Buildozer
       run: pip3 install --upgrade buildozer cython==0.29.36
 
+    # 3.1 تثبيت أدوات بناء أندرويد
+    - name: Install Android Build Tools
+      run: |
+        mkdir -p ~/.android
+        sudo apt-get update
+        sudo apt-get install -y android-sdk || true
+        # sdkmanager usually comes with android-sdk; if missing install commandline-tools
+        if ! command -v sdkmanager >/dev/null 2>&1; then
+          echo "sdkmanager not found, installing commandlinetools"
+          sudo apt-get install -y unzip wget
+          curl -sS https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o cmdline-tools.zip
+          mkdir -p $HOME/Android/cmdline-tools
+          unzip -q cmdline-tools.zip -d $HOME/Android/cmdline-tools
+          export PATH="$HOME/Android/cmdline-tools/cmdline-tools/bin:$PATH"
+        fi
+        yes | sdkmanager "build-tools;33.0.0" "platforms;android-33"
+
     # 4. بدء البناء (هذه الخطوة تأخذ وقتاً طويلاً: 15-20 دقيقة)
     - name: Build APK with Buildozer
       run: buildozer android debug
