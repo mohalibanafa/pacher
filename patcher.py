@@ -3,6 +3,7 @@ import sys
 import shutil
 import subprocess
 import hashlib
+import tempfile
 import zlib
 
 # ==========================================
@@ -28,8 +29,12 @@ import gradio as gr
 # ==========================================
 # 2. دوال المعالجة الأساسية
 # ==========================================
-def download_file(url, output_name):
-    command = ["aria2c", "-x", "16", "-s", "16", "--seed-time=0", "-d", "/content", "-o", output_name, url]
+def download_file(url, output_path):
+    output_dir = os.path.dirname(output_path)
+    if not output_dir:
+        output_dir = "."
+    output_name = os.path.basename(output_path)
+    command = ["aria2c", "-x", "16", "-s", "16", "--seed-time=0", "-d", output_dir, "-o", output_name, url]
     result = subprocess.run(command, capture_output=True, text=True)
     if result.returncode != 0:
         raise Exception(f"فشل التحميل من الرابط: {url}\nالسبب: {result.stderr}")
@@ -80,15 +85,11 @@ def process(operation_mode, original_url, modified_url):
     if not original_url.strip():
         raise gr.Error("الرجاء إدخال الرابط الأول على الأقل!")
 
-    # مسارات الملفات المؤقتة
-    orig_file = "downloaded_file.bin"
-    mod_file = "modified_file.bin"
-    patch_file = "output.patch"
-    
-    # تنظيف مسبق
-    for f in [orig_file, mod_file, patch_file, f"{orig_file}.xz", f"{patch_file}.xz"]:
-        if os.path.exists(f):
-            os.remove(f)
+    # مسارات الملفات المؤقتة في مجلد عشوائي لكل عملية لتجنب تداخل المستخدمين
+    temp_dir = tempfile.mkdtemp()
+    orig_file = os.path.join(temp_dir, "downloaded_file.bin")
+    mod_file = os.path.join(temp_dir, "modified_file.bin")
+    patch_file = os.path.join(temp_dir, "output.patch")
 
     try:
         # ========================================================
@@ -130,10 +131,6 @@ def process(operation_mode, original_url, modified_url):
             
             gr.Info("🗜️ جاري ضغط الباتش بأقصى إعدادات (LZMA)...")
             final_file = compress_file_lzma(patch_file)
-            
-            # تنظيف ملفات البداية
-            os.remove(orig_file)
-            os.remove(mod_file)
             
             return final_file, msg
 
