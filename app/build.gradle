@@ -41,7 +41,12 @@ android {
 chaquopy {
     defaultConfig {
         version = "3.8"
-        buildPython("C:/python38/python.exe") // Note: On GitHub actions it will use the system python if we don't specify, but let's just leave it out or specify python3
+        
+        if (System.getenv("CI") == "true") {
+            buildPython("python3")
+        } else {
+            buildPython("python")
+        }
         
         pip {
             install "bsdiff4"
@@ -49,23 +54,8 @@ chaquopy {
     }
 }
 
-// Ensure GitHub Actions can find Python without hardcoded paths
-if (System.getenv("CI") == "true") {
-    chaquopy {
-        defaultConfig {
-            buildPython("python3")
-        }
-    }
-} else {
-    // For local Windows build, if python is in PATH we can just use python
-     chaquopy {
-        defaultConfig {
-            buildPython("python")
-        }
-    }
-}
 
-
+// Dependencies
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
