@@ -1,0 +1,74 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.chaquo.python'
+}
+
+android {
+    namespace 'org.test.cloudpatcher'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "org.test.cloudpatcher"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+chaquopy {
+    defaultConfig {
+        version = "3.8"
+        buildPython("C:/python38/python.exe") // Note: On GitHub actions it will use the system python if we don't specify, but let's just leave it out or specify python3
+        
+        pip {
+            install "bsdiff4"
+        }
+    }
+}
+
+// Ensure GitHub Actions can find Python without hardcoded paths
+if (System.getenv("CI") == "true") {
+    chaquopy {
+        defaultConfig {
+            buildPython("python3")
+        }
+    }
+} else {
+    // For local Windows build, if python is in PATH we can just use python
+     chaquopy {
+        defaultConfig {
+            buildPython("python")
+        }
+    }
+}
+
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}
