@@ -39,20 +39,35 @@ The application follows a streamlined operational sequence:
 
 ## 🚀 Deployment Instructions
 
-### Windows Environment
-Executing the software on Windows is handled via the automated loader:
-1.  Ensure [Python 3.x](https://www.python.org/downloads/) is installed and added to the system PATH.
-2.  Execute `start.bat`. The script will verify the environment and launch the interface at `http://127.0.0.1:5000`.
+### 💻 Windows Environment
 
-### Android (Termux) Environment
-A dedicated setup script is provided for mobile terminal environments:
-1.  Initiate the setup process using the following commands:
-    ```bash
-    chmod +x termux_setup.sh
-    ./termux_setup.sh
-    ```
-2.  The script will update repository headers, install required packages, and start the Flask server.
-3.  Access the application via any mobile browser at `http://localhost:5000`.
+#### 1️⃣ Setup and Execution
+1. Ensure [Python 3.x](https://www.python.org/downloads/) is installed and added to the system PATH.
+2. Download the project and extract the contents.
+3. Double-click `main.py` or run it via Terminal using:
+   ```cmd
+   python main.py
+   ```
+4. **Note**: The application will automatically verify the environment and install required libraries (Flask, Requests, etc.) during the first execution, then launch the interface in your browser.
+
+---
+
+### 📱 Android (Termux) Environment
+
+#### 1️⃣ First-Time Setup and Launch
+Copy the following command to initialize the environment (update system and install requirements) and start the application directly:
+```bash
+pkg update -y && pkg install git python -y && git clone https://github.com/mohalibanafa/pacher.git && cd pacher && python main.py
+```
+
+#### 2️⃣ Daily Usage
+After the initial setup, you can launch the application later by simply running:
+```bash
+cd pacher
+python main.py
+```
+- The application is self-sufficient and manages its own dependencies without external scripts.
+- Access the interface via your mobile browser at: `http://localhost:5000`.
 
 ---
 
@@ -60,13 +75,11 @@ A dedicated setup script is provided for mobile terminal environments:
 
 ```text
 patcher/
-├── pacher/                 # Core application directory
+├── pacher/                 # Main application directory
 │   ├── main.py            # Primary server logic and algorithms
 │   ├── templates/         # HTML structure (Jinja2)
-│   ├── static/            # Asset management (CSS/JS)
+│   ├── static/            # Static assets (CSS/JS)
 │   └── outputs/           # Volatile output storage
-├── termux_setup.sh        # Deployment script for Termux
-├── start.bat              # Deployment script for Windows
 └── README.md              # Technical documentation
 ```
 
