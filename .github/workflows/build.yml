@@ -46,15 +46,18 @@ jobs:
           curl \
           openjdk-17-jdk \
           libtinfo6 \
+          libbz2-dev \
+          liblzma-dev \
+          libreadline-dev \
           ccache
 
     - name: Install Buildozer
       run: |
-        pip install --user --upgrade buildozer flet cython
+        pip install --user --upgrade buildozer flet "cython<3.0"
 
     - name: Build with Buildozer
       run: |
-        yes | buildozer -v android debug
+        buildozer -v android debug
       env:
         # Avoid some common build errors
         CI: true
