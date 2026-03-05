@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.env
+
+# Buildozer & Android
+.buildozer/
+bin/
+*.spec
+
+# Legacy Backup
+.legacy_backup/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
