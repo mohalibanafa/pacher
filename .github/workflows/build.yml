@@ -50,6 +50,8 @@ jobs:
           liblzma-dev \
           libreadline-dev \
           libtool \
+          libtool-bin \
+          pkg-config \
           autoconf \
           ccache
 
