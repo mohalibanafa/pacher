@@ -49,6 +49,8 @@ jobs:
           libbz2-dev \
           liblzma-dev \
           libreadline-dev \
+          libtool \
+          autoconf \
           ccache
 
     - name: Install Buildozer
