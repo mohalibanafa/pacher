@@ -9,7 +9,6 @@ venv/
 # Buildozer & Android
 .buildozer/
 bin/
-*.spec
 
 # Legacy Backup
 .legacy_backup/
