@@ -50,7 +50,7 @@ jobs:
 
     - name: Install Buildozer
       run: |
-        pip install --user --upgrade buildozer flet
+        pip install --user --upgrade buildozer flet cython
 
     - name: Build with Buildozer
       run: |
