@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Patcher | الإصدار الإحترافي 🚀</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Cloud Patcher 🛠️</h1>
+            <p class="subtitle">تطبيق الباتشات وفك الضغط بتقنيات سحابية متطورة</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('patch')">✨ تطبيق باتش</div>
+            <div class="tab" onclick="switchTab('extract')">📦 فك ضغط</div>
+        </div>
+
+        <form id="patchForm" class="mode-section">
+            <div class="form-group">
+                <label>ملف الباتش (.xz)</label>
+                <div class="file-input-wrapper">
+                    <span id="patchName" class="file-name">💡 اسحب أو انقر لاختيار ملف الباتش</span>
+                    <input type="file" name="patch_file" accept=".xz" onchange="updateFileName(this, 'patchName')">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>الملف الأصلي (المراد تحديثه)</label>
+                <div class="file-input-wrapper">
+                    <span id="originalName" class="file-name">🎯 اختر الملف الأساسي</span>
+                    <input type="file" name="original_file" onchange="updateFileName(this, 'originalName')">
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">⚡ معالجة وتطبيق الآن</button>
+        </form>
+
+        <form id="extractForm" class="mode-section hidden">
+            <div class="form-group">
+                <label>الملف المضغوط (.xz)</label>
+                <div class="file-input-wrapper">
+                    <span id="archiveName" class="file-name">📥 اختر ملفاً لفك ضغطه</span>
+                    <input type="file" name="archive_file" accept=".xz" onchange="updateFileName(this, 'archiveName')">
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">🔓 فك الضغط الفوري</button>
+        </form>
+
+        <div id="statusCard" class="status-card">
+            <div id="statusText" style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">جاري التحضير...
+            </div>
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <div id="logArea" class="log-container">
+                <!-- السجلات تظهر هنا -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'patch';
+
+        function switchTab(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (event) event.currentTarget.classList.add('active');
+
+            const patchForm = document.getElementById('patchForm');
+            const extractForm = document.getElementById('extractForm');
+
+            if (mode === 'patch') {
+                patchForm.classList.remove('hidden');
+                extractForm.classList.add('hidden');
+            } else {
+                patchForm.classList.add('hidden');
+                extractForm.classList.remove('hidden');
+            }
+        }
+
+        function updateFileName(input, targetId) {
+            if (input.files.length > 0) {
+                const name = input.files[0].name;
+                document.getElementById(targetId).innerHTML = `<strong style="color:var(--accent)">✅ ${name}</strong>`;
+            }
+        }
+
+        async function handleForm(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('mode', currentMode);
+
+            const statusCard = document.getElementById('statusCard');
+            const statusText = document.getElementById('statusText');
+            const logArea = document.getElementById('logArea');
+            const progressBar = document.getElementById('progressBar');
+
+            statusCard.style.display = 'block';
+            logArea.innerHTML = '';
+            progressBar.style.width = '0%';
+            statusText.textContent = "🚀 جاري الرفع والمعالجة...";
+            statusText.style.color = "var(--text-main)";
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusText.textContent = "✨ اكتملت العملية بنجاح!";
+                    statusText.style.color = "var(--success)";
+                    progressBar.style.width = '100%';
+                    result.logs.forEach(msg => addLog(msg, 'success'));
+
+                    if (result.download_url) {
+                        addLog("جاري بدء التحميل تلقائياً...", 'success');
+                        setTimeout(() => {
+                            window.location.href = result.download_url;
+                        }, 1000);
+                    }
+                } else {
+                    statusText.textContent = "❌ فشلت العملية";
+                    statusText.style.color = "var(--error)";
+                    addLog(result.error, 'error');
+                }
+            } catch (err) {
+                statusText.textContent = "⚠️ خطأ في الاتصال بالسيرفر";
+                addLog(err.message, 'error');
+            }
+        }
+
+        function addLog(msg, type) {
+            const div = document.createElement('div');
+            div.className = 'log-entry ' + (type === 'error' ? 'log-error' : 'log-success');
+            div.textContent = "> " + msg;
+            document.getElementById('logArea').appendChild(div);
+            document.getElementById('logArea').scrollTop = document.getElementById('logArea').scrollHeight;
+        }
+
+        document.getElementById('patchForm').onsubmit = handleForm;
+        document.getElementById('extractForm').onsubmit = handleForm;
+    </script>
+</body>
+
+</html>

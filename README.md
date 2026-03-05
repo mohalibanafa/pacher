@@ -1,37 +1,95 @@
-# 🚀 Cloud Patcher | أداة التحديث السحابية والضغط الذكي
+# Cloud Patcher v2.0 | Technical Documentation
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mohalibanafa/pacher/blob/main/patcher.ipynb)
-
-مشروع متطور يهدف إلى تسهيل عملية نقل البيانات وتحديث الملفات الكبيرة بكفاءة عالية، مع التركيز بشكل أساسي على **توفير استهلاك الإنترنت** و **تسريع عمليات التحميل**.
+A professional web-based utility designed for binary patching and high-efficiency decompression. This system utilizes advanced algorithms to facilitate file updates and extractions across multiple environments, including Windows and Android (Termux).
 
 ---
 
-## 🎯 أهداف المشروع
+## 📋 Project Overview
 
-1. **توفير الإنترنت (Data Saving):** بدلاً من تحميل ملف جديد بالكامل عند وجود تحديث، تقوم الأداة بإنشاء "رقعة" (Patch) تحتوي فقط على الاختلافات بين الملف القديم والجديد، مما يقلل حجم التحميل بنسبة تصل إلى 90% في كثير من الأحيان.
-2. **تسريع التحميل (High-Speed Download):** تستخدم الأداة محرك `aria2` القوي الذي يدعم التحميل المتعدد (Multi-connection) بأقصى سرعة ممكنة للشبكة.
-3. **تقليل مساحة التخزين:** استخدام خوارزميات ضغط متقدمة جداً (LZMA) لتقليل حجم الملفات النهائية إلى أقصى حد ممكن.
+**Cloud Patcher** provides a centralized interface for managing binary differential updates and compressed archives. By leveraging pure Python implementations, the system ensures cross-platform compatibility without the need for complex system-level dependencies.
 
----
-
-## 🛠️ الوظائف والتقنيات المستخدمة
-
-- **إنشاء الرقع (Binary Patching):** باستخدام تقنية `bsdiff` المتطورة للملفات الثنائية.
-- **الضغط العالي (Strong Compression):** دعم كامل لتقنية `LZMA` عبر أدوات `xz-utils` لضمان أصغر حجم ممكن.
-- **التحميل الذكي:** دعم روابط المباشرة و `Magnet Links` مع ميزة الفحص التلقائي للسلامة (Hash Verification).
-- **واجهة متعددة المنصات:**
-    - واجهة ويب تفاعلية عبر `Gradio` للتشغيل السحابي (Colab).
-    - تطبيق موبايل حديث بواجهة جذابة تم بناؤه باستخدام `Kivy`.
+### Core Functionalities:
+1.  **Binary Differential Patching**: Utilizing the **BSDIFF4** algorithm to apply incremental updates to existing files with high precision.
+2.  **Archive Decompression**: Integrated **LZMA** engine for processing `.xz` archives, ensuring optimal compression ratios.
+3.  **Output Management**: Automated packaging of processed files into `.zip` archives, accompanied by technical metadata and integrity signatures.
 
 ---
 
-## 🚀 كيف يعمل؟
+## ⚙️ Technical Specifications
 
-1. **في السحاب (Colab):** يمكنك استخدام الدفتر المخصص لتحميل الملفات، ضغطها، أو إنشاء رقع تحديث وتحميل النتيجة النهائية مباشرة.
-2. **على الموبايل (Android):** التطبيق يتيح لك اختيار الملف المتوفر لديك وملف التحديث (.xz) ثم دمجهم بضغطة زر للحصول على النسخة الجديدة دون الحاجة لتحميلها بالكامل.
+-   **Autonomous Dependency Resolution**: The system automatically detects missing environment libraries (e.g., Flask, Requests) and performs a silent installation during the initial execution.
+-   **Pure Python Architecture**: Developed entirely in Python to eliminate reliance on external C-extensions, ensuring stability across architectural variants.
+-   **Integrity Verification Engine**: Automatic generation of **SHA256** and **MD5** checksums for all input and output files to guarantee data consistency.
+-   **Automated Lifecycle Management**: An internal scheduled task cleanses temporary directories and output folders (removing files older than 60 minutes) to maintain storage efficiency.
 
 ---
 
-## 📦 المتطلبات التقنية
-يعتمد المشروع على أدوات مفتوحة المصدر قوية تشمل:
-`bsdiff`, `aria2`, `xz-utils`, `Gradio`, `Kivy`, `Python 3.x`.
+## 🛠️ Usage Workflow (Step-by-Step)
+
+The application follows a streamlined operational sequence:
+
+1.  **Operational Mode Selection**: Choose between the **Patching** tab (applying updates) or the **Extraction** tab (decompressing files).
+2.  **File Input**:
+    *   *Patching Mode*: Upload the compressed patch file (`.xz`) and the corresponding original file to be updated.
+    *   *Extraction Mode*: Upload the target `.xz` archive.
+3.  **Process Execution**: Trigger the processing engine via the action button. The interface will provide real-time status logs during execution.
+4.  **Verification & Retrieval**: Review the generated integrity hashes (MD5/SHA256) in the log area. Upon completion, the system will automatically package the results and initiate a download of the final `.zip` bundle.
+
+---
+
+## 🚀 Deployment Instructions
+
+### Windows Environment
+Executing the software on Windows is handled via the automated loader:
+1.  Ensure [Python 3.x](https://www.python.org/downloads/) is installed and added to the system PATH.
+2.  Execute `start.bat`. The script will verify the environment and launch the interface at `http://127.0.0.1:5000`.
+
+### Android (Termux) Environment
+A dedicated setup script is provided for mobile terminal environments:
+1.  Initiate the setup process using the following commands:
+    ```bash
+    chmod +x termux_setup.sh
+    ./termux_setup.sh
+    ```
+2.  The script will update repository headers, install required packages, and start the Flask server.
+3.  Access the application via any mobile browser at `http://localhost:5000`.
+
+---
+
+## 📁 System Architecture
+
+```text
+patcher/
+├── pacher/                 # Core application directory
+│   ├── main.py            # Primary server logic and algorithms
+│   ├── templates/         # HTML structure (Jinja2)
+│   ├── static/            # Asset management (CSS/JS)
+│   └── outputs/           # Volatile output storage
+├── termux_setup.sh        # Deployment script for Termux
+├── start.bat              # Deployment script for Windows
+└── README.md              # Technical documentation
+```
+
+---
+
+## 🔍 Technical Logic and Algorithms
+
+-   **BSDIFF4 Implementation**: The patching engine calculates the difference between binary files, allowing for significantly smaller update payloads.
+-   **LZMA Decompression**: Handles the extraction of `.xz` headers and data blocks efficiently.
+-   **Multi-threading**: Offloads heavy processing tasks to background threads to maintain a responsive web UI.
+
+---
+
+## 📝 Frequently Asked Questions (FAQ)
+
+**Q: Is the data processing localized?**  
+A: Yes. All file processing occurs strictly within the local environment. No data is transmitted to external servers or cloud storage.
+
+**Q: Connectivity issues in Termux?**  
+A: Ensure that you have updated the package manager and granted storage permissions via `termux-setup-storage`.
+
+**Q: Performance on large datasets?**  
+A: The system implements chunked data reading to process files larger than the available physical RAM, ensuring scalability.
+
+---
+*Developed for efficient cross-platform binary file management.*
