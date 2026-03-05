@@ -53,6 +53,9 @@ jobs:
           libtool-bin \
           pkg-config \
           autoconf \
+          automake \
+          cmake \
+          libffi-dev \
           ccache
 
     - name: Install Buildozer
