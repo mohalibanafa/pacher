@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Patcher | الإصدار الإحترافي 🚀</title>
+    <title>pacher</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -12,52 +12,54 @@
 <body>
     <div class="container">
         <header>
-            <h1>Cloud Patcher 🛠️</h1>
-            <p class="subtitle">تطبيق الباتشات وفك الضغط بتقنيات سحابية متطورة</p>
+            <h1>Patcher</h1>
+            <p class="subtitle">Advanced Cloud-Based Patching and Extraction Tool</p>
+            <a href="https://colab.research.google.com/github/mohalibanafa/pacher/blob/main/patcher.ipynb"
+                target="_blank" class="btn-colab">Open in Google Colab</a>
         </header>
 
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('patch')">✨ تطبيق باتش</div>
-            <div class="tab" onclick="switchTab('extract')">📦 فك ضغط</div>
+            <div class="tab active" onclick="switchTab('patch')">Apply Patch</div>
+            <div class="tab" onclick="switchTab('extract')">Extract Archive</div>
         </div>
 
         <form id="patchForm" class="mode-section">
             <div class="form-group">
-                <label>ملف الباتش (.xz)</label>
+                <label>Patch File (.xz)</label>
                 <div class="file-input-wrapper">
-                    <span id="patchName" class="file-name">💡 اسحب أو انقر لاختيار ملف الباتش</span>
+                    <span id="patchName" class="file-name">Drag or click to select a patch file</span>
                     <input type="file" name="patch_file" accept=".xz" onchange="updateFileName(this, 'patchName')">
                 </div>
             </div>
             <div class="form-group">
-                <label>الملف الأصلي (المراد تحديثه)</label>
+                <label>Original File (to be updated)</label>
                 <div class="file-input-wrapper">
-                    <span id="originalName" class="file-name">🎯 اختر الملف الأساسي</span>
+                    <span id="originalName" class="file-name">Select the original file</span>
                     <input type="file" name="original_file" onchange="updateFileName(this, 'originalName')">
                 </div>
             </div>
-            <button type="submit" class="btn-primary">⚡ معالجة وتطبيق الآن</button>
+            <button type="submit" class="btn-primary">Process and Apply</button>
         </form>
 
         <form id="extractForm" class="mode-section hidden">
             <div class="form-group">
-                <label>الملف المضغوط (.xz)</label>
+                <label>Archive File (.xz)</label>
                 <div class="file-input-wrapper">
-                    <span id="archiveName" class="file-name">📥 اختر ملفاً لفك ضغطه</span>
+                    <span id="archiveName" class="file-name">Select a file to extract</span>
                     <input type="file" name="archive_file" accept=".xz" onchange="updateFileName(this, 'archiveName')">
                 </div>
             </div>
-            <button type="submit" class="btn-primary">🔓 فك الضغط الفوري</button>
+            <button type="submit" class="btn-primary">Extract Now</button>
         </form>
 
         <div id="statusCard" class="status-card">
-            <div id="statusText" style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">جاري التحضير...
+            <div id="statusText" style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">Initializing...
             </div>
             <div class="progress-container">
                 <div id="progressBar" class="progress-bar"></div>
             </div>
             <div id="logArea" class="log-container">
-                <!-- السجلات تظهر هنا -->
+                <!-- Logs will appear here -->
             </div>
         </div>
     </div>
@@ -85,7 +87,7 @@
         function updateFileName(input, targetId) {
             if (input.files.length > 0) {
                 const name = input.files[0].name;
-                document.getElementById(targetId).innerHTML = `<strong style="color:var(--accent)">✅ ${name}</strong>`;
+                document.getElementById(targetId).innerHTML = `<strong style="color:var(--accent)">Selected: ${name}</strong>`;
             }
         }
 
@@ -102,7 +104,7 @@
             statusCard.style.display = 'block';
             logArea.innerHTML = '';
             progressBar.style.width = '0%';
-            statusText.textContent = "🚀 جاري الرفع والمعالجة...";
+            statusText.textContent = "Processing and uploading...";
             statusText.style.color = "var(--text-main)";
 
             try {
@@ -114,24 +116,24 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    statusText.textContent = "✨ اكتملت العملية بنجاح!";
+                    statusText.textContent = "Process completed successfully!";
                     statusText.style.color = "var(--success)";
                     progressBar.style.width = '100%';
                     result.logs.forEach(msg => addLog(msg, 'success'));
 
                     if (result.download_url) {
-                        addLog("جاري بدء التحميل تلقائياً...", 'success');
+                        addLog("Starting download automatically...", 'success');
                         setTimeout(() => {
                             window.location.href = result.download_url;
                         }, 1000);
                     }
                 } else {
-                    statusText.textContent = "❌ فشلت العملية";
+                    statusText.textContent = "Process failed";
                     statusText.style.color = "var(--error)";
                     addLog(result.error, 'error');
                 }
             } catch (err) {
-                statusText.textContent = "⚠️ خطأ في الاتصال بالسيرفر";
+                statusText.textContent = "Server connection error";
                 addLog(err.message, 'error');
             }
         }

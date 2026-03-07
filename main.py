@@ -227,7 +227,7 @@ def open_browser():
     webbrowser.open("http://127.0.0.1:5000")
 
 if __name__ == '__main__':
-    print(f"[*] Cloud Patcher Starting...")
+    print(f"[*] pacher Starting...")
     print(f"[*] Local Outputs: {OUTPUTS_DIR}")
     
     # Clean old outputs on startup

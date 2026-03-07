@@ -21,7 +21,7 @@
 body {
     background: var(--bg-dark);
     color: var(--text-main);
-    direction: rtl;
+    direction: ltr;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -193,6 +193,27 @@ label {
 
 .btn-primary:active {
     transform: scale(0.98);
+}
+
+.btn-colab {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    margin-top: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.btn-colab:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
 }
 
 .status-card {
