@@ -4,7 +4,7 @@ A professional web-based utility for high-efficiency binary differential patchin
 
 <div align="center">
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mohalibanafa/pacher/blob/main/patcher.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mohalibanafa/pacher/blob/main/pacher.ipynb)
 
 </div>
 
